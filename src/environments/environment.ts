@@ -1,17 +1,36 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
-
+// src/environments/environment.ts (Development uchun)
 export const environment = {
   production: false,
-  apiUrl: 'https://api-test.mbron.uz/api',
+  
+  // API endpoints
+  apiUrl: 'https://mbron.vercel.app/api',
+  versionCheckUrl: 'https://mbron.vercel.app/api/version',
+  
+  // App metadata (build script tomonidan avtomatik yangilanadi)
+  appMetadata: {
+    version: '1.0.4',
+    build: 104,
+    buildDate: '2025-12-21T10:00:00Z'
+  },
+  
+  // Feature flags
+  features: {
+    enableAnalytics: false,
+    enableCrashReporting: false,
+    enableAutoUpdate: true,
+    enableDebugMode: true
+  },
+  
+  // Update settings
+  updateCheck: {
+    intervalMinutes: 10,
+    retryAttempts: 3,
+    retryDelayMs: 5000
+  },
+  
+  // Logging
+  logging: {
+    level: 'debug', // 'debug' | 'info' | 'warn' | 'error'
+    enableConsole: true
+  }
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
