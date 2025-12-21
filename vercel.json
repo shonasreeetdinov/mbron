@@ -5,6 +5,14 @@
       "dest": "/version.json"
     },
     {
+      "src": "^/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "^/.*\\.(js|css|map|ico|png|jpg|svg|webp|woff2?)$",
+      "dest": "/$0"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
