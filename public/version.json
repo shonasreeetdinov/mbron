@@ -1,8 +1,5 @@
 {
-  "routes": [
-    {
-      "src": "/version.json",
-      "dest": "/version.json"
-    }
-  ]
+  "version": "1.0.4",
+  "build": 16,
+  "force": true
 }
