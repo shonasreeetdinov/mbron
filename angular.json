@@ -5,94 +5,88 @@
   "projects": {
     "mbron": {
       "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
-      },
-      "root": "",
       "sourceRoot": "src",
+      "root": "",
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "outputPath": "dist/web",
+            "index": "src/index-web.html",
+            "browser": "src/main-web.ts",
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "assets": ["src/assets", "src/favicon.ico"],
+            "styles": ["src/styles-web.scss"],
+            "scripts": []
           },
           "configurations": {
             "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 }
-              ],
-              "outputHashing": "all"
+              ]
             },
             "development": {
               "optimization": false,
-              "extractLicenses": false,
               "sourceMap": true
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "mbron:build:production"
             },
-            "development": {
-              "buildTarget": "mbron:build:development"
+          "mobile": {
+          "outputPath": {
+            "base": "dist/mobile",
+            "browser": ""
+          },
+          "browser": "src/main-mobile.ts",
+          "index": { "input": "src/index-mobile.html", "output": "index.html" },
+          "styles": ["src/styles-mobile.scss"],
+          "optimization": false,
+          "sourceMap": true
+          },
+            "mobile-production": {
+              "outputPath": "dist/mobile",
+              "browser": "src/main-mobile.ts",
+              "index": "src/index-mobile.html",
+              "styles": ["src/styles-mobile.scss"],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true
             }
           },
           "defaultConfiguration": "development"
         },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/styles.scss"
-            ]
-          }
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "mbron:build:development"
+            },
+            "production": {
+              "buildTarget": "mbron:build:production"
+            },
+            "mobile": {
+              "buildTarget": "mbron:build:mobile"
+            },
+            "mobile-production": {
+              "buildTarget": "mbron:build:mobile-production"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

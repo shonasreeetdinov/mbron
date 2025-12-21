@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1"
+	 id="svg2" inkscape:version="0.48.1 " sodipodi:docname="AJAX.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="149.308px" height="23px"
+	 viewBox="0 0 149.308 23" style="enable-background:new 0 0 149.308 23;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#991933;}
+	.st1{fill:#E01933;}
+	.st2{fill:#003366;}
+</style>
+<defs>
+	
+	
+		<inkscape:perspective  id="perspective30" inkscape:persp3d-origin="220.5 : 22.666667 : 1" inkscape:vp_x="0 : 34 : 1" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="441 : 34 : 1" sodipodi:type="inkscape:persp3d">
+		</inkscape:perspective>
+</defs>
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1" gridtolerance="10" guidetolerance="10" id="namedview24" inkscape:current-layer="svg2" inkscape:cx="137.25157" inkscape:cy="-26.169946" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="1004" inkscape:window-maximized="1" inkscape:window-width="1280" inkscape:window-x="-8" inkscape:window-y="-8" inkscape:zoom="3.8504464" objecttolerance="10" pagecolor="#ffffff" showgrid="false">
+	</sodipodi:namedview>
+<g id="g4" transform="matrix(0.45532286,0,0,0.45532286,-0.08469005,-0.02823002)">
+	<path id="path6" class="st0" d="M61.094,45.185L31.803,31.08l-0.976-0.934l0.464-28.13l0.512-1.954 M63.418,50.576L31.803,37.216
+		l-0.976,1.471v11.888H63.418z"/>
+	<polyline id="polyline8" class="st1" points="2.503,45.185 31.803,0.062 31.803,31.08 	"/>
+	<polyline id="polyline10" class="st1" points="0.186,50.576 31.803,50.576 31.803,37.216 	"/>
+	<path id="path14" class="st2" d="M88.088,45.18h14.218c14.607,0,23.329-7.562,23.329-20.124c0-12.558-8.721-20.114-23.329-20.114
+		H88.088 M97.073,11.928h5.224c9.485,0,14.226,4.677,14.226,13.129c0,8.449-4.742,13.132-14.226,13.132h-5.224V11.928z"/>
+	<polyline id="polyline16" class="st2" points="156.169,27.738 173.257,27.74 173.257,20.751 156.169,20.751 156.169,11.928 
+		175.486,11.928 175.486,4.942 147.175,4.942 147.175,45.18 176.116,45.182 176.116,38.192 156.169,38.189 	"/>
+	<polyline id="polyline18" class="st2" points="227.326,38.192 209.999,38.192 209.999,4.942 200.973,4.942 200.973,45.182 
+		227.326,45.182 	"/>
+	<polyline id="polyline20" class="st2" points="275.867,4.942 239.748,4.942 239.748,11.928 253.288,11.928 253.288,45.182 
+		262.322,45.182 262.322,11.928 275.867,11.928 	"/>
+	<path id="path22" class="st2" d="M328.103,45.182h-9.412l-3.945-10.08h-16.372l-3.929,10.08h-8.796L302.48,4.767h9.077
+		 M312.193,28.372l-5.622-14.285l-5.637,14.285H312.193z"/>
+</g>
+</svg>
