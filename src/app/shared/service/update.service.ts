@@ -12,7 +12,7 @@ interface VersionResponse {
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
-  private readonly VERSION_URL = 'https://mbron.vercel.app/version.json';
+  private readonly VERSION_URL = 'https://mbron.vercel.app/assets/version.json';
   private readonly CURRENT_VERSION = packageJson.version;
 
   constructor(
