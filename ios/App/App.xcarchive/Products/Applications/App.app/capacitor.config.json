@@ -1,0 +1,22 @@
+{
+	"appId": "com.mbron.app",
+	"appName": "Mbron",
+	"webDir": "dist/mobile",
+	"server": {
+		"hostname": "mbron-app.vercel.app",
+		"androidScheme": "https",
+		"allowNavigation": [
+			"mbron-app.vercel.app",
+			"*.vercel.app"
+		]
+	},
+	"plugins": {
+		"WebView": {}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"StatusBarPlugin"
+	]
+}
