@@ -1,74 +1,75 @@
-// src/app/core/services/update.service.ts
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Capacitor } from '@capacitor/core';
+import { firstValueFrom } from 'rxjs';
+import packageJson from '../../../../package.json';
 
-@Injectable({
-  providedIn: 'root',
-})
+interface VersionResponse {
+  version: string;
+  build: number;
+  force: boolean;
+}
+
+@Injectable({ providedIn: 'root' })
 export class UpdateService {
-  private readonly CURRENT_VERSION = '1.0.0'; // ← Har build'da o‘zgartiring yoki package.json'dan oling
-  private readonly VERSION_URL = 'https://mbron.vercel.app/version.json'; // ← Server'da yaratiladigan fayl
+  private readonly VERSION_URL = 'https://mbron.vercel.app/version.json';
+  private readonly CURRENT_VERSION = packageJson.version;
 
   constructor(
     private http: HttpClient,
-    private alertController: AlertController
+    private alertCtrl: AlertController
   ) {}
 
   async checkForUpdate(): Promise<void> {
-    // Faqat native platform'da (iOS/Android)
-    if (!Capacitor.isNativePlatform()) {
-      return;
-    }
-
     try {
-      const serverVersion: any = await this.http
-        .get<{ version: string }>(this.VERSION_URL, {
-          params: { t: Date.now().toString() }, // cache bypass
-        })
-        .toPromise();
+      const server = await firstValueFrom(
+        this.http.get<VersionResponse>(this.VERSION_URL)
+      );
 
-      if (serverVersion.version !== this.CURRENT_VERSION) {
-        this.forceUpdate();
+      console.log('Local:', this.CURRENT_VERSION);
+      console.log('Server:', server.version);
+
+      if (this.isNewer(server.version, this.CURRENT_VERSION) && server.force) {
+        await this.showUpdateAlert(server.version);
       }
-    } catch (error) {
-      console.log('Update check failed (offline or error)', error);
-      // Silent fail — user'ga bildirish shart emas
+    } catch (e) {
+      console.error('Version check failed', e);
     }
   }
 
-  private async showUpdateAlert(newVersion: string): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Yangi versiya mavjud!',
-      message: `Versiya ${newVersion} chiqdi. App'ni yangilashni xohlaysizmi?`,
+  private isNewer(server: string, local: string): boolean {
+    const s = server.split('.').map(Number);
+    const l = local.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(s.length, l.length); i++) {
+      if ((s[i] || 0) > (l[i] || 0)) return true;
+      if ((s[i] || 0) < (l[i] || 0)) return false;
+    }
+    return false;
+  }
+
+  private async showUpdateAlert(version: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Yangilanish mavjud',
+      message: `Yangi versiya (${version}) mavjud.`,
       backdropDismiss: false,
       buttons: [
-        {
-          text: 'Keyinroq',
-          role: 'cancel',
-        },
-        {
-          text: 'Yangilash',
-          handler: () => {
-            this.forceUpdate();
-          },
-        },
-      ],
+        { text: 'Yangilash', handler: () => this.forceReload() }
+      ]
     });
 
     await alert.present();
   }
 
-  private forceUpdate(): void {
-    // Cache'ni tozalab, app'ni reload qilish
-    caches.keys().then((names) => {
-      names.forEach((name) => caches.delete(name));
-    });
+  private forceReload() {
+    if ('caches' in window) {
+      caches.keys().then(keys =>
+        keys.forEach(k => caches.delete(k))
+      );
+    }
 
     localStorage.clear();
     sessionStorage.clear();
-
     window.location.reload();
   }
 }

@@ -18,15 +18,13 @@ export class AppMobileComponent implements OnInit {
     private platform: Platform
   ) {}
 
-  async ngOnInit() {
-    await this.platform.ready();
+async ngOnInit() {
+  await this.platform.ready();
 
-    // App ochilganda yangi versiyani check qilish
+  this.updateService.checkForUpdate();
+
+  setInterval(() => {
     this.updateService.checkForUpdate();
-
-    // Ixtiyoriy: Har 10 daqiqada check qilish
-    setInterval(() => {
-      this.updateService.checkForUpdate();
-    }, 10 * 60 * 1000);
-  }
+  }, 10 * 60 * 1000);
+}
 }
