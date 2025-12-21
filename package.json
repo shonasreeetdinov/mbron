@@ -28,7 +28,6 @@
     "@capacitor/haptics": "8.0.0",
     "@capacitor/ios": "8.0.0",
     "@capacitor/keyboard": "8.0.0",
-    "@capacitor/live-updates": "^0.4.0",
     "@capacitor/status-bar": "8.0.0",
     "@ionic/angular": "^8.7.13",
     "@tailwindcss/postcss": "^4.1.18",
