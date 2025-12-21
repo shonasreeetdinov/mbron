@@ -1,11 +1,22 @@
+import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { IonApp, IonButton, IonRouterOutlet, IonItem, IonInput, IonLabel } from '@ionic/angular/standalone';
+import {
+  IonApp,
+  IonButton,
+  IonRouterOutlet,
+  IonItem,
+  IonInput,
+  IonLabel,
+  IonContent,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-mobile-root',
   standalone: true,
-  imports: [IonInput, IonApp, IonRouterOutlet, IonButton,IonItem, IonLabel],
+  imports: [IonApp, IonRouterOutlet, IonContent, DatePipe],
   templateUrl: './app-mobile.component.html',
-  styleUrl: './app-mobile.component.scss'
+  styleUrl: './app-mobile.component.scss',
 })
-export class AppMobileComponent {}
+export class AppMobileComponent {
+  now = new Date();
+}

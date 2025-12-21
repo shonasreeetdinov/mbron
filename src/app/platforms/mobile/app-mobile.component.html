@@ -1,24 +1,9 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
-  <div class="mx-auto w-full">
-    <div class="flex flex-col gap-1 w-64 p-4 align-center">
-      <ion-button>Default</ion-button>
-      <ion-button color="primary">Primary</ion-button>
-      <ion-button color="secondary">Secondary</ion-button>
-      <ion-button color="tertiary">Tertiary</ion-button>
-      <ion-button color="success">Success</ion-button>
-      <ion-button color="warning">Warning</ion-button>
-      <ion-button color="danger">Danger</ion-button>
-      <ion-button color="light">Light</ion-button>
-      <ion-button color="medium">Medium</ion-button>
-      <ion-button color="dark">Dark</ion-button>
-      <div>
-        <ion-item>
-          <ion-label position="floating">Floating label</ion-label>
-          <ion-input></ion-input>
-        </ion-item>
-      </div>
-      <ion-input label="Default input"></ion-input>
-    </div>
-  </div>
+  <ion-content class="ion-padding">
+    <h1 class="text-3xl font-bold text-center text-blue-600">
+      Yangi versiya - mbron.vercel.app dan yuklandi! 🎉
+    </h1>
+    <p class="text-center mt-4">Vaqt: {{ now | date : "short" }}</p>
+  </ion-content>
 </ion-app>
