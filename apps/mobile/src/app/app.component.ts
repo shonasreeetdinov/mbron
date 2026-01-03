@@ -36,15 +36,19 @@ export class AppComponent implements OnInit {
 
   private async checkForNewUpdate() {
     try {
+      console.log('[App] Checking for new update...');
       const versionInfo = await this.ota.checkForUpdate();
       if (versionInfo) {
+        console.log('[App] New update found:', versionInfo);
         const message = versionInfo.changelog 
           ? `Yangi versiya: ${versionInfo.version}\n\n${versionInfo.changelog}`
           : `Yangi versiya yuklab olindi: ${versionInfo.version}`;
         this.askForReload(message);
+      } else {
+        console.log('[App] No update available');
       }
     } catch (err) {
-      console.error('Update check failed:', err);
+      console.error('[App] Update check failed:', err);
     }
   }
 

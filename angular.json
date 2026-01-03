@@ -188,7 +188,8 @@
           "configurations": {
             "development": {
               "buildTarget": "mbron-mobile:build:development",
-              "port": 4201
+              "port": 4201,
+              "proxyConfig": "apps/mobile/proxy.conf.json"
             },
             "production": {
               "buildTarget": "mbron-mobile:build:production",

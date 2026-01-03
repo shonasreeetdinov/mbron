@@ -22,21 +22,29 @@ export class OtaService {
   private readonly VERSION_KEY = 'ota_current_version';
   private readonly VERSION_URL_KEY = 'ota_current_url';
   private readonly VERCEL_BASE_URL = 'https://mbron.vercel.app';
-  private readonly VERSION_CHECK_URL = `${this.VERCEL_BASE_URL}/version.json`;
+  // Development modeda proxy orqali, production da to'g'ridan-to'g'ri
+  private readonly VERSION_CHECK_URL = environment.production 
+    ? `${this.VERCEL_BASE_URL}/version.json`
+    : `/version.json`; // Proxy orqali
 
   /**
    * App ishga tushganda chaqiriladi
    */
   async initialize(): Promise<void> {
-    if (!Capacitor.isNativePlatform()) {
-      return;
-    }
-
     try {
+      console.log('[OTA] Initializing...');
+      console.log('[OTA] Platform:', Capacitor.getPlatform());
+      console.log('[OTA] Is native:', Capacitor.isNativePlatform());
+      console.log('[OTA] App version:', environment.app.version);
+      console.log('[OTA] Vercel URL:', this.VERCEL_BASE_URL);
+
       // Joriy versiyani saqlaymiz (agar yo'q bo'lsa)
       const currentVersion = await this.getCurrentVersion();
       if (!currentVersion) {
         await this.saveCurrentVersion(environment.app.version, '');
+        console.log('[OTA] Initial version saved:', environment.app.version);
+      } else {
+        console.log('[OTA] Current stored version:', currentVersion);
       }
     } catch (err) {
       console.error('[OTA] Initialize error', err);
@@ -73,29 +81,48 @@ export class OtaService {
    * @returns Update mavjud bo'lsa VersionInfo, aks holda null
    */
   async checkForUpdate(checkOnly: boolean = false): Promise<VersionInfo | null> {
-    if (!Capacitor.isNativePlatform()) {
+    // Development modeda ham test qilish uchun native check ni o'chirib qo'yamiz
+    // Lekin production da faqat native platformda ishlaydi
+    const isNative = Capacitor.isNativePlatform();
+    const isProduction = environment.production;
+
+    if (!isNative && isProduction) {
+      console.log('[OTA] Skipping update check - not native platform in production');
       return null;
     }
 
     try {
+      console.log('[OTA] Checking for updates from:', this.VERSION_CHECK_URL);
+      console.log('[OTA] Current app version:', environment.app.version);
+      
       // Serverdan versiya ma'lumotlarini olamiz
       const response = await fetch(this.VERSION_CHECK_URL, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
         },
+        cache: 'no-store',
       });
 
       if (!response.ok) {
-        throw new Error(`Version check failed: ${response.status}`);
+        throw new Error(`Version check failed: ${response.status} ${response.statusText}`);
       }
 
       const versionInfo: VersionInfo = await response.json();
+      console.log('[OTA] Server version info:', versionInfo);
+
       const currentVersion = await this.getCurrentVersion();
+      const currentVersionToCompare = currentVersion || environment.app.version;
+      console.log('[OTA] Current stored version:', currentVersion);
+      console.log('[OTA] Version to compare:', currentVersionToCompare);
 
       // Versiyalarni solishtiramiz
-      if (this.isNewerVersion(versionInfo.version, currentVersion || environment.app.version)) {
-        console.log('[OTA] New version available:', versionInfo.version);
+      const isNewer = this.isNewerVersion(versionInfo.version, currentVersionToCompare);
+      console.log('[OTA] Is newer version?', isNewer);
+
+      if (isNewer) {
+        console.log('[OTA] ✅ New version available:', versionInfo.version);
 
         if (!checkOnly) {
           // Yangi versiyani pending qilib saqlaymiz
@@ -107,15 +134,21 @@ export class OtaService {
             key: 'ota_pending_version',
             value: versionInfo.version,
           });
+          console.log('[OTA] Pending update saved:', versionInfo.version);
         }
 
         return versionInfo;
       }
 
-      console.log('[OTA] Already up to date');
+      console.log('[OTA] ✅ Already up to date');
       return null;
-    } catch (err) {
-      console.error('[OTA] checkForUpdate error', err);
+    } catch (err: any) {
+      console.error('[OTA] ❌ checkForUpdate error:', err);
+      console.error('[OTA] Error details:', {
+        message: err?.message,
+        stack: err?.stack,
+        url: this.VERSION_CHECK_URL,
+      });
       return null;
     }
   }

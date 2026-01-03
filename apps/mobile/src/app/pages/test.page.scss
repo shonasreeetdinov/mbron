@@ -12,9 +12,12 @@ main {
 }
 
 .header {
+  
   padding: 1rem;
   background-color: var(--ion-color-primary, #3880ff);
   color: white;
+  padding-top: var(--ion-safe-area-top,1rem);
+
 }
 
 .content {

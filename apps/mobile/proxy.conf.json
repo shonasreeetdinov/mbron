@@ -1,0 +1,12 @@
+{
+  "/version.json": {
+    "target": "https://mbron.vercel.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "headers": {
+      "Access-Control-Allow-Origin": "*"
+    }
+  }
+}
+
