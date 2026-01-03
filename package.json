@@ -4,14 +4,21 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "start:web": "ng serve",
-    "start:mobile": "ng serve --configuration=mobile",
-    "build": "ng build",
-    "build:web": "ng build",
-    "build:mobile": "ng build --configuration=mobile",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "ng serve --project mbron-web",
+    "start:web": "ng serve --project mbron-web",
+    "start:mobile": "ng serve --project mbron-mobile --configuration development",
+    "build": "ng build --project mbron-web",
+    "build:web": "ng build --project mbron-web",
+    "build:mobile": "ng build --project mbron-mobile --configuration mobile-production",
+    "watch": "ng build --project mbron-web --watch --configuration development",
+    "test": "ng test",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android",
+    "cap:sync": "npx cap sync",
+    "cap:build:ios": "npm run build:mobile && npx cap sync ios && npx cap build ios",
+    "cap:build:android": "npm run build:mobile && npx cap sync android && npx cap build android",
+    "cap:run:ios": "npx cap run ios",
+    "cap:run:android": "npx cap run android"
   },
   "dependencies": {
     "@angular/animations": "^20.3.15",
@@ -30,7 +37,6 @@
     "@capacitor/keyboard": "8.0.0",
     "@capacitor/status-bar": "8.0.0",
     "@ionic/angular": "^8.7.13",
-    "@tailwindcss/postcss": "^4.1.18",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -43,15 +49,12 @@
     "@capacitor/cli": "8.0.0",
     "@ionic/angular-toolkit": "latest",
     "@types/jasmine": "~5.1.0",
-    "autoprefixer": "^10.4.23",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2"
   }
 }

@@ -1,0 +1,23 @@
+ion-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+main {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+}
+
+.header {
+  padding: 1rem;
+  background-color: var(--ion-color-primary, #3880ff);
+  color: white;
+}
+
+.content {
+  padding: 1rem;
+}
+

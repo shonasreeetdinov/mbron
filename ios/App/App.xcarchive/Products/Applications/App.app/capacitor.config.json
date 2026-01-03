@@ -1,17 +1,15 @@
 {
 	"appId": "com.mbron.app",
-	"appName": "Mbron",
-	"webDir": "dist/mobile",
+	"appName": "MBRON",
+	"webDir": "dist/mobile/browser",
 	"server": {
-		"hostname": "mbron-app.vercel.app",
 		"androidScheme": "https",
-		"allowNavigation": [
-			"mbron-app.vercel.app",
-			"*.vercel.app"
-		]
+		"cleartext": true
 	},
 	"plugins": {
-		"WebView": {}
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
 	},
 	"packageClassList": [
 		"AppPlugin",
