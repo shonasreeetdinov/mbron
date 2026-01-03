@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Component, OnInit } from '@angular/core';
+import { AlertController, IonApp, IonRouterOutlet, Platform } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
+import { OtaService } from './services/ota.service';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,63 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'mbron-mobile';
+  constructor(
+    private platform: Platform,
+    private ota: OtaService,
+    private alertCtrl: AlertController
+  ) { }
+
+  async ngOnInit() {
+    await this.platform.ready();
+
+    // OTA servisini ishga tushiramiz
+    await this.ota.initialize();
+
+    // Agar pending update bo'lsa, foydalanuvchiga ko'rsatamiz
+    const hasPendingUpdate = await this.ota.hasPendingUpdate();
+    if (hasPendingUpdate) {
+      this.askForReload('Kutayotgan yangilanish mavjud');
+    }
+
+    // Yangi update bor-yo'qligini tekshiramiz (background)
+    this.checkForNewUpdate();
+  }
+
+  private async checkForNewUpdate() {
+    try {
+      const versionInfo = await this.ota.checkForUpdate();
+      if (versionInfo) {
+        const message = versionInfo.changelog 
+          ? `Yangi versiya: ${versionInfo.version}\n\n${versionInfo.changelog}`
+          : `Yangi versiya yuklab olindi: ${versionInfo.version}`;
+        this.askForReload(message);
+      }
+    } catch (err) {
+      console.error('Update check failed:', err);
+    }
+  }
+
+  async askForReload(message?: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Yangilanish mavjud',
+      message: message || 'Ilovani qayta ishga tushirsangiz yangi versiya ishlaydi.',
+      buttons: [
+        {
+          text: 'Keyinroq',
+          role: 'cancel',
+        },
+        {
+          text: 'Qayta ishga tushirish',
+          handler: () => {
+            this.ota.reloadApp();
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
 }

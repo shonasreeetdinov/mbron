@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mbron.app',
+  appId: 'com.mbron.new',
   appName: 'MBRON',
   webDir: 'dist/mobile/browser',
 

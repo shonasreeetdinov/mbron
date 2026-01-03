@@ -1,0 +1,7 @@
+{
+  "version": "1.0.4",
+  "url": "https://your-app.vercel.app",
+  "mandatory": false,
+  "changelog": "Initial release"
+}
+

@@ -1,5 +1,5 @@
 {
-	"appId": "com.mbron.app",
+	"appId": "com.mbron.new",
 	"appName": "MBRON",
 	"webDir": "dist/mobile/browser",
 	"server": {
@@ -9,12 +9,19 @@
 	"plugins": {
 		"SplashScreen": {
 			"launchShowDuration": 0
+		},
+		"CapacitorUpdater": {
+			"autoUpdate": false,
+			"updateUrl": "https://plugin.capgo.app/updates",
+			"channelUrl": "https://plugin.capgo.app/channel_self",
+			"statsUrl": "https://plugin.capgo.app/stats"
 		}
 	},
 	"packageClassList": [
 		"AppPlugin",
 		"HapticsPlugin",
 		"KeyboardPlugin",
-		"StatusBarPlugin"
+		"StatusBarPlugin",
+		"CapacitorUpdaterPlugin"
 	]
 }
