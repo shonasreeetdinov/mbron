@@ -160,11 +160,31 @@ export class OtaService {
    */
   async reloadApp(): Promise<void> {
     if (!Capacitor.isNativePlatform()) {
+      // Web/Development modeda
+      try {
+        const pendingVersion = await Preferences.get({ key: 'ota_pending_version' });
+        const pendingUrl = await Preferences.get({ key: 'ota_pending_url' });
+
+        if (pendingVersion.value && pendingUrl.value) {
+          // Yangi versiyani joriy versiya qilib saqlaymiz
+          await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
+          console.log('[OTA] Version updated to:', pendingVersion.value);
+
+          // Pending ma'lumotlarni tozalaymiz
+          await Preferences.remove({ key: 'ota_pending_url' });
+          await Preferences.remove({ key: 'ota_pending_version' });
+          console.log('[OTA] Pending update cleared');
+        }
+      } catch (err) {
+        console.error('[OTA] Error updating version before reload:', err);
+      }
+
       // Web da oddiy reload
       window.location.reload();
       return;
     }
 
+    // Native platform
     try {
       const pendingUrl = await Preferences.get({ key: 'ota_pending_url' });
       const pendingVersion = await Preferences.get({ key: 'ota_pending_version' });
