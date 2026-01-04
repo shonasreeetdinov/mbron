@@ -29,6 +29,6 @@ export const environment = {
   // App Info
   app: {
     name: 'MBRON',
-    version: '1.0.4',
+    version: '1.0.8',
   },
 };

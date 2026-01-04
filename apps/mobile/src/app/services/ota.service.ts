@@ -81,14 +81,16 @@ export class OtaService {
    * @returns Update mavjud bo'lsa VersionInfo, aks holda null
    */
   async checkForUpdate(checkOnly: boolean = false): Promise<VersionInfo | null> {
-    // Development modeda ham test qilish uchun native check ni o'chirib qo'yamiz
-    // Lekin production da faqat native platformda ishlaydi
+    // Web browser da ham version check qilish mumkin (test uchun)
+    // Lekin haqiqiy OTA update faqat native platformda (iOS/Android) ishlaydi
     const isNative = Capacitor.isNativePlatform();
-    const isProduction = environment.production;
-
-    if (!isNative && isProduction) {
-      console.log('[OTA] Skipping update check - not native platform in production');
-      return null;
+    
+    // Native platformda yoki development modeda version check qilamiz
+    // Production web browser da ham version check qilish mumkin (test/debug uchun)
+    // Lekin update qo'llash faqat native platformda kerak
+    if (!isNative && environment.production) {
+      // Production web browser da version check qilamiz, lekin update qo'llash emas
+      console.log('[OTA] Web browser mode - version check only (update will not be applied)');
     }
 
     try {
@@ -161,6 +163,14 @@ export class OtaService {
   async reloadApp(): Promise<void> {
     if (!Capacitor.isNativePlatform()) {
       // Web/Development modeda
+      if (environment.production) {
+        // Production web browser da update qo'llash emas
+        // Faqat version check qilish mumkin
+        console.log('[OTA] Web browser mode - update not applied. Use native app for OTA updates.');
+        return;
+      }
+
+      // Development modeda test uchun
       try {
         const pendingVersion = await Preferences.get({ key: 'ota_pending_version' });
         const pendingUrl = await Preferences.get({ key: 'ota_pending_url' });
