@@ -22,10 +22,10 @@ export class OtaService {
   private readonly VERSION_KEY = 'ota_current_version';
   private readonly VERSION_URL_KEY = 'ota_current_url';
   private readonly VERCEL_BASE_URL = 'https://mbron.vercel.app';
-  // Development modeda proxy orqali, production da to'g'ridan-to'g'ri
+  // Development modeda assets dan, production da Vercel dan
   private readonly VERSION_CHECK_URL = environment.production 
     ? `${this.VERCEL_BASE_URL}/version.json`
-    : `/version.json`; // Proxy orqali
+    : `/assets/version.json`; // Assets papkasidan
 
   /**
    * App ishga tushganda chaqiriladi
