@@ -9,7 +9,7 @@
     "start:mobile": "ng serve --project mbron-mobile --configuration development",
     "build": "ng build --project mbron-web",
     "build:web": "ng build --project mbron-web",
-    "build:mobile": "ng build --project mbron-mobile --configuration mobile-production",
+    "build:mobile": "ng build --project mbron-mobile --configuration mobile-production && cp public/version.json dist/mobile/browser/version.json",
     "watch": "ng build --project mbron-web --watch --configuration development",
     "test": "ng test",
     "cap:open:ios": "npx cap open ios",
