@@ -1,7 +1,5 @@
 {
   "name": "mbron",
-  "type": "angular",
-  "integrations": {
-    "capacitor": {}
-  }
+  "integrations": {},
+  "type": "angular"
 }
