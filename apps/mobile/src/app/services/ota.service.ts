@@ -162,6 +162,8 @@ export class OtaService {
       
       const response = await fetch(this.VERSION_CHECK_URL, {
         method: 'GET',
+        mode: 'cors',
+        credentials: 'omit',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
