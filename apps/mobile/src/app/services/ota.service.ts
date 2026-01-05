@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { Preferences } from '@capacitor/preferences';
 import { environment } from '../../../../../libs/core/src/lib/config/environment';
 
@@ -26,49 +27,28 @@ export class OtaService {
 
   async initialize(): Promise<void> {
     try {
+      console.log('[OTA] Initializing...');
+      console.log('[OTA] Platform:', Capacitor.getPlatform());
+      console.log('[OTA] Is native:', Capacitor.isNativePlatform());
+      console.log('[OTA] App version:', environment.app.version);
+      console.log('[OTA] Version check URL:', this.VERSION_CHECK_URL);
+
       await this.cleanupOldVersions();
 
       const currentVersion = await this.getCurrentVersion();
       if (!currentVersion) {
         await this.saveCurrentVersion(environment.app.version, '');
+        console.log('[OTA] Initial version saved:', environment.app.version);
       } else {
+        console.log('[OTA] Current stored version:', currentVersion);
+        
         if (this.isNewerVersion(environment.app.version, currentVersion)) {
+          console.log('[OTA] App version is newer than stored, updating...');
           await this.saveCurrentVersion(environment.app.version, '');
         }
       }
-
-      // Native platformda pending URL ni tekshirib, server.url ni yangilash
-      if (Capacitor.isNativePlatform()) {
-        await this.applyPendingUpdateIfExists();
-      }
     } catch (err) {
       console.error('[OTA] Initialize error', err);
-    }
-  }
-
-  /**
-   * App init bo'lganda pending update bor bo'lsa, uni qo'llash
-   * Native code da server.url ni yangilash kerak
-   */
-  private async applyPendingUpdateIfExists(): Promise<void> {
-    try {
-      const pendingUrl = await Preferences.get({ key: this.PENDING_URL_KEY });
-      const pendingVersion = await Preferences.get({ key: this.PENDING_VERSION_KEY });
-      const currentUrl = await Preferences.get({ key: this.VERSION_URL_KEY });
-
-      // Agar pending URL mavjud bo'lsa va u hali qo'llanmagan bo'lsa
-      if (pendingUrl.value && pendingVersion.value && pendingUrl.value !== currentUrl.value) {
-        // Versiyani yangilaymiz
-        await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
-        
-        // Pending ma'lumotlarni tozalaymiz
-        await Preferences.remove({ key: this.PENDING_URL_KEY });
-        await Preferences.remove({ key: this.PENDING_VERSION_KEY });
-        
-        console.log(`[OTA] 🔄 Applied pending update: ${pendingVersion.value}`);
-      }
-    } catch (err) {
-      console.error('[OTA] Error applying pending update:', err);
     }
   }
 
@@ -81,22 +61,28 @@ export class OtaService {
 
       if (pendingVersion.value && currentVersion) {
         if (!this.isNewerVersion(pendingVersion.value, currentVersion)) {
+          console.log('[OTA] Cleaning up old pending update:', pendingVersion.value);
           await Preferences.remove({ key: this.PENDING_URL_KEY });
           await Preferences.remove({ key: this.PENDING_VERSION_KEY });
         }
       }
 
       if (pendingVersion.value && !pendingUrl.value) {
+        console.log('[OTA] Cleaning up pending update without URL');
         await Preferences.remove({ key: this.PENDING_VERSION_KEY });
       }
 
       if (pendingUrl.value && !pendingVersion.value) {
+        console.log('[OTA] Cleaning up pending URL without version');
         await Preferences.remove({ key: this.PENDING_URL_KEY });
       }
 
       if (currentUrl.value && !currentVersion) {
+        console.log('[OTA] Cleaning up current URL without version');
         await Preferences.remove({ key: this.VERSION_URL_KEY });
       }
+
+      console.log('[OTA] Storage cleanup completed');
     } catch (err) {
       console.error('[OTA] Cleanup error:', err);
     }
@@ -123,6 +109,9 @@ export class OtaService {
     const isNative = Capacitor.isNativePlatform();
     
     try {
+      console.log('[OTA] Checking for updates from:', this.VERSION_CHECK_URL);
+      console.log('[OTA] Current app version:', environment.app.version);
+      
       const response = await fetch(this.VERSION_CHECK_URL, {
         method: 'GET',
         headers: {
@@ -130,6 +119,7 @@ export class OtaService {
           'Pragma': 'no-cache',
           'Expires': '0',
         },
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -137,25 +127,20 @@ export class OtaService {
       }
 
       const versionInfo: VersionInfo = await response.json();
-      
-      // Server versiyasini log'ga qo'shamiz
-      const sourceFile = isNative ? 'https://mbron.vercel.app/version.json' : 'assets/version.json';
-      console.log(`[OTA] Server version: ${versionInfo.version} (from: ${sourceFile})`);
+      console.log('[OTA] Server version info:', versionInfo);
 
       const currentVersion = await this.getCurrentVersion();
       const currentVersionToCompare = currentVersion || environment.app.version;
-      
-      // Device versiyasini log'ga qo'shamiz
-      const deviceSourceFile = isNative ? 'Preferences' : 'environment.prod.ts';
-      console.log(`[OTA] Device version: ${currentVersionToCompare} (from: ${deviceSourceFile})`);
+      console.log('[OTA] Current stored version:', currentVersion);
+      console.log('[OTA] Version to compare:', currentVersionToCompare);
 
       const isNewer = this.isNewerVersion(versionInfo.version, currentVersionToCompare);
+      console.log('[OTA] Is newer version?', isNewer);
 
       if (isNewer) {
-        console.log(`[OTA] ✅ Update available: ${currentVersionToCompare} → ${versionInfo.version}`);
+        console.log('[OTA] ✅ New version available:', versionInfo.version);
 
-        // Pending update ni saqlaymiz (native platformda yoki development modeda)
-        if (!checkOnly && (isNative || !environment.production)) {
+        if (!checkOnly && isNative) {
           await Preferences.set({
             key: this.PENDING_URL_KEY,
             value: versionInfo.url,
@@ -164,46 +149,32 @@ export class OtaService {
             key: this.PENDING_VERSION_KEY,
             value: versionInfo.version,
           });
+          console.log('[OTA] Pending update saved:', versionInfo.version);
         }
 
         return versionInfo;
       }
 
-      console.log(`[OTA] ✅ Up to date: ${currentVersionToCompare}`);
+      console.log('[OTA] ✅ Already up to date');
       return null;
     } catch (err: any) {
-      console.error('[OTA] ❌ Version check failed:', err?.message || err);
+      console.error('[OTA] ❌ checkForUpdate error:', err);
+      console.error('[OTA] Error details:', {
+        message: err?.message,
+        stack: err?.stack,
+        url: this.VERSION_CHECK_URL,
+      });
       return null;
     }
   }
 
   async reloadApp(): Promise<void> {
     if (!Capacitor.isNativePlatform()) {
-      // Web/Development modeda
-      if (environment.production) {
-        return;
-      }
-
-      try {
-        const pendingVersion = await Preferences.get({ key: this.PENDING_VERSION_KEY });
-        const pendingUrl = await Preferences.get({ key: this.PENDING_URL_KEY });
-
-        if (pendingVersion.value && pendingUrl.value) {
-          await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
-          await Preferences.remove({ key: this.PENDING_URL_KEY });
-          await Preferences.remove({ key: this.PENDING_VERSION_KEY });
-        }
-      } catch (err) {
-        console.error('[OTA] Error updating version before reload:', err);
-      }
-
+      console.log('[OTA] Web mode - simple reload');
       window.location.reload();
       return;
     }
 
-    // Native platform - Preferences'dan reload qilish
-    // AppDelegate.swift'da applyPendingOTAUpdate() Preferences'dan URL ni o'qib 
-    // WebView'ni qayta yuklaydi
     try {
       const pendingUrl = await Preferences.get({ key: this.PENDING_URL_KEY });
       const pendingVersion = await Preferences.get({ key: this.PENDING_VERSION_KEY });
@@ -213,17 +184,27 @@ export class OtaService {
         return;
       }
 
+      console.log('[OTA] Applying update:', {
+        version: pendingVersion.value,
+        url: pendingUrl.value
+      });
+
       await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
       await Preferences.remove({ key: this.PENDING_URL_KEY });
       await Preferences.remove({ key: this.PENDING_VERSION_KEY });
 
-      console.log(`[OTA] 🔄 Restarting app with version: ${pendingVersion.value}`);
+      console.log('[OTA] Update applied, reloading app...');
       
-      // Native app qayta ishga tushadi → AppDelegate → applyPendingOTAUpdate()
-      // → WebView qayta yuklanydi yangi tuzilma bilan
-      window.location.reload();
+      // Capacitor Live Updates ishlatilgan bo'lsa
+      // Bu yerda server.url ni o'zgartirish kerak
+      window.location.href = pendingUrl.value;
+      
+      // Yoki appni to'liq qayta ishga tushirish
+      setTimeout(() => {
+        App.exitApp();
+      }, 500);
     } catch (err) {
-      console.error('[OTA] Reload error', err);
+      console.error('[OTA] reload error', err);
     }
   }
 

@@ -7,7 +7,6 @@ const config: CapacitorConfig = {
   webDir: 'dist/mobile/browser',
 
   server: {
-    url: 'https://mbron.vercel.app',
     androidScheme: 'https',
     cleartext: true,
   },
