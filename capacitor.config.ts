@@ -9,11 +9,15 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     cleartext: true,
+    allowNavigation: ['mbron.vercel.app', 'https://mbron.vercel.app'],
   },
 
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
+    },
+    CapacitorHttp: {
+      enabled: true,
     },
   },
 };

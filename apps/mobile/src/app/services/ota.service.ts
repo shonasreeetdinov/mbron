@@ -159,17 +159,15 @@ export class OtaService {
     try {
       console.log('[OTA] Checking for updates from:', this.VERSION_CHECK_URL);
       console.log('[OTA] Current app version:', environment.app.version);
+      console.log('[OTA] Is native platform:', isNative);
       
       const response = await fetch(this.VERSION_CHECK_URL, {
         method: 'GET',
-        mode: 'cors',
-        credentials: 'omit',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
         },
-        cache: 'no-store',
       });
 
       if (!response.ok) {
