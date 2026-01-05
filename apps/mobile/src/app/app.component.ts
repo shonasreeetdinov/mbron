@@ -30,30 +30,21 @@ export class AppComponent implements OnInit {
       this.askForReload('Kutayotgan yangilanish mavjud');
     }
 
-    // Yangi update bor-yo'qligini tekshiramiz (darhol va background'da)
+    // Yangi update bor-yo'qligini faqat init'da tekshiramiz
     await this.checkForNewUpdate();
   }
 
   private async checkForNewUpdate() {
     try {
-      console.log('[App] Checking for new update...');
       const versionInfo = await this.ota.checkForUpdate();
       if (versionInfo) {
-        console.log('[App] New update found:', versionInfo);
         const message = versionInfo.changelog 
           ? `Yangi versiya: ${versionInfo.version}\n\n${versionInfo.changelog}`
           : `Yangi versiya yuklab olindi: ${versionInfo.version}`;
         this.askForReload(message);
-      } else {
-        console.log('[App] No update available');
       }
-      
-      // 30 sekunddan keyin yana tekshirish
-      setTimeout(() => this.checkForNewUpdate(), 30000);
     } catch (err) {
       console.error('[App] Update check failed:', err);
-      // Xatoda ham 30 sekunddan keyin qayta urinish
-      setTimeout(() => this.checkForNewUpdate(), 30000);
     }
   }
 

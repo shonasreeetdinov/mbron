@@ -1,7 +1,7 @@
 {
-  "version": "1.0.14a",
+  "version": "1.0.12",
   "url": "https://mbron.vercel.app",
   "mandatory": false,
-  "changelog": "Device'dagi versiya"
+  "changelog": "Device version"
 }
 
