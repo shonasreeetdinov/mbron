@@ -6,6 +6,7 @@ ion-content {
   --padding-start: 0;
   --padding-end: 0;
   --padding-bottom: 0;
+  --padding-top: var(--ion-safe-area-top + 1rem);
   --ion-safe-area-top: var(--ion-statusbar-padding);
 
 }
