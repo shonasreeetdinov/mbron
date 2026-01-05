@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, IonApp, IonRouterOutlet, IonButton, IonContent, IonHeader, IonToolbar, IonTitle } from '@ionic/angular/standalone';
+import { ToastController, IonApp, IonRouterOutlet, IonButton, IonContent, IonHeader, IonToolbar, IonTitle } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { OtaService } from './services/ota.service';
 import { Capacitor } from '@capacitor/core';
@@ -10,8 +10,16 @@ import { Capacitor } from '@capacitor/core';
   imports: [CommonModule, IonApp, IonRouterOutlet, IonButton, IonContent, IonHeader, IonToolbar, IonTitle],
   template: `
     <ion-app>
+      <!-- Update banner - non-blocking -->
+      <div *ngIf="updateAvailable && !updateApplied" style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; text-align: center; animation: slideDown 0.3s ease;">
+        <div style="margin: 0 0 10px 0; font-weight: 600;">📦 Yangi versiya: {{ updateVersion }}</div>
+        <div style="margin: 0 0 12px 0; font-size: 14px;">{{ updateChangelog }}</div>
+        <button (click)="applyUpdate()" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; margin-right: 8px;">Yangilash</button>
+        <button (click)="dismissUpdate()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; font-weight: 600; cursor: pointer;">Keyinroq</button>
+      </div>
+      
       <!-- Debug panel - faqat development uchun -->
-      <div *ngIf="showDebug" style="position: fixed; top: 0; right: 0; z-index: 9999; background: white; padding: 10px; border: 2px solid red;">
+      <div *ngIf="showDebug" style="position: fixed; top: 60px; right: 0; z-index: 999; background: white; padding: 10px; border: 2px solid red; border-radius: 4px; font-size: 12px;">
         <h3>OTA Debug</h3>
         <p>Platform: {{ platform }}</p>
         <p>Current Version: {{ currentVersion }}</p>
@@ -24,7 +32,16 @@ import { Capacitor } from '@capacitor/core';
       <ion-router-outlet></ion-router-outlet>
     </ion-app>
   `,
-  styleUrls: ['./app.component.scss'],
+  styles: [`
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+  `],
 })
 export class AppComponent implements OnInit {
   title = 'mbron-mobile';
@@ -32,10 +49,14 @@ export class AppComponent implements OnInit {
   platform = '';
   currentVersion = '';
   hasPending = false;
+  updateAvailable = false;
+  updateApplied = false;
+  updateVersion = '';
+  updateChangelog = '';
 
   constructor(
     private ota: OtaService,
-    private alertCtrl: AlertController
+    private toastCtrl: ToastController
   ) { }
 
   async ngOnInit() {
@@ -70,20 +91,10 @@ export class AppComponent implements OnInit {
     
     if (versionInfo) {
       console.log('[Debug] Update found:', versionInfo);
-      const alert = await this.alertCtrl.create({
-        header: 'Update Found',
-        message: `New version: ${versionInfo.version}\n${versionInfo.changelog || ''}`,
-        buttons: ['OK']
-      });
-      await alert.present();
+      this.showToast(`Yangi versiya: ${versionInfo.version}`, 'success');
     } else {
       console.log('[Debug] No update available');
-      const alert = await this.alertCtrl.create({
-        header: 'No Update',
-        message: 'You are using the latest version',
-        buttons: ['OK']
-      });
-      await alert.present();
+      this.showToast('Siz oxirgi versiyadan foydalanyapsiz', 'info');
     }
   }
 
@@ -96,43 +107,19 @@ export class AppComponent implements OnInit {
     };
     
     console.log('[Debug] App Info:', info);
-    
-    const alert = await this.alertCtrl.create({
-      header: 'Debug Info',
-      message: JSON.stringify(info, null, 2),
-      buttons: ['OK']
-    });
-    await alert.present();
+    this.showToast(JSON.stringify(info, null, 2), 'info');
   }
 
   async clearStorage() {
-    const confirm = await this.alertCtrl.create({
-      header: 'Clear Storage?',
-      message: 'This will remove all OTA data',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Clear',
-          handler: async () => {
-            try {
-              const { Preferences } = await import('@capacitor/preferences');
-              await Preferences.clear();
-              console.log('[Debug] Storage cleared');
-              
-              const success = await this.alertCtrl.create({
-                header: 'Success',
-                message: 'Storage cleared. Restart app to reinitialize.',
-                buttons: ['OK']
-              });
-              await success.present();
-            } catch (err) {
-              console.error('[Debug] Clear error:', err);
-            }
-          }
-        }
-      ]
-    });
-    await confirm.present();
+    try {
+      const { Preferences } = await import('@capacitor/preferences');
+      await Preferences.clear();
+      console.log('[Debug] Storage cleared');
+      this.showToast('Storage tozalandi. Ilovani qayta ishga tushiring.', 'success');
+    } catch (err) {
+      console.error('[Debug] Clear error:', err);
+      this.showToast('Storage tozalashda xato!', 'danger');
+    }
   }
 
   private async checkForNewUpdate() {
@@ -157,23 +144,29 @@ export class AppComponent implements OnInit {
   }
 
   async askForReload(message?: string) {
-    const alert = await this.alertCtrl.create({
-      header: 'Yangilanish mavjud',
-      message: message || 'Ilovani qayta ishga tushirsangiz yangi versiya ishlaydi.',
-      buttons: [
-        {
-          text: 'Keyinroq',
-          role: 'cancel',
-        },
-        {
-          text: 'Qayta ishga tushirish',
-          handler: () => {
-            this.ota.reloadApp();
-          },
-        },
-      ],
-    });
+    // Update banner ni ko'rsatamiz
+    this.updateAvailable = true;
+    this.updateVersion = (await this.ota.getCurrentVersion()) || 'Latest';
+    this.updateChangelog = message || 'Ilovani qayta ishga tushirsangiz yangi versiya ishlaydi.';
+  }
 
-    await alert.present();
+  async applyUpdate() {
+    this.updateApplied = true;
+    this.showToast('Yangilash boshlanmoqda...', 'success');
+    await this.ota.reloadApp();
+  }
+
+  dismissUpdate() {
+    this.updateAvailable = false;
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger' | 'info' = 'info') {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color,
+    });
+    await toast.present();
   }
 }

@@ -226,15 +226,12 @@ export class OtaService {
       await Preferences.remove({ key: this.PENDING_URL_KEY });
       await Preferences.remove({ key: this.PENDING_VERSION_KEY });
 
-      console.log('[OTA] Update applied, navigating to new content...');
+      console.log('[OTA] Update applied, restarting app to load new version...');
 
-      // Navigate to remote app content. Use replace to avoid extra history entry.
-      try {
-        window.location.replace(targetBase);
-      } catch (navErr) {
-        console.error('[OTA] Navigation error, falling back to href:', navErr);
-        window.location.href = targetBase;
-      }
+      // Exit and let native app restart with new code
+      setTimeout(() => {
+        App.exitApp();
+      }, 500);
     } catch (err) {
       console.error('[OTA] reload error', err);
     }
