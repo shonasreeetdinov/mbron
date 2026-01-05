@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
+import { Http } from '@capacitor/http';
 import { App } from '@capacitor/app';
 import { Preferences } from '@capacitor/preferences';
 import { environment } from '../../../../../libs/core/src/lib/config/environment';
@@ -111,23 +112,36 @@ export class OtaService {
     try {
       console.log('[OTA] Checking for updates from:', this.VERSION_CHECK_URL);
       console.log('[OTA] Current app version:', environment.app.version);
-      
-      const response = await fetch(this.VERSION_CHECK_URL, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
-        cache: 'no-store',
-      });
 
-      if (!response.ok) {
-        throw new Error(`Version check failed: ${response.status} ${response.statusText}`);
+      let versionInfo: VersionInfo;
+
+      if (isNative) {
+        // Use native HTTP plugin to avoid CORS issues in WebView
+        const nativeResp = await Http.request({
+          method: 'GET',
+          url: this.VERSION_CHECK_URL,
+        });
+
+        versionInfo = nativeResp.data as VersionInfo;
+        console.log('[OTA] Server version info (native):', versionInfo);
+      } else {
+        const response = await fetch(this.VERSION_CHECK_URL, {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Version check failed: ${response.status} ${response.statusText}`);
+        }
+
+        versionInfo = await response.json();
+        console.log('[OTA] Server version info (web):', versionInfo);
       }
-
-      const versionInfo: VersionInfo = await response.json();
-      console.log('[OTA] Server version info:', versionInfo);
 
       const currentVersion = await this.getCurrentVersion();
       const currentVersionToCompare = currentVersion || environment.app.version;
@@ -189,20 +203,38 @@ export class OtaService {
         url: pendingUrl.value
       });
 
+      // Prefetch the target (index.html) to ensure server reachable
+      const targetBase = pendingUrl.value.endsWith('/') ? pendingUrl.value : `${pendingUrl.value}/`;
+      const targetIndex = `${targetBase}index.html`;
+
+      try {
+        if (Capacitor.isNativePlatform()) {
+          const resp = await Http.request({ method: 'GET', url: targetIndex});
+          if ((resp as any).status && (resp as any).status >= 400) {
+            throw new Error(`Prefetch failed: ${ (resp as any).status }`);
+          }
+        } else {
+          const r = await fetch(targetIndex, { method: 'GET', cache: 'no-store' });
+          if (!r.ok) throw new Error(`Prefetch failed: ${r.status}`);
+        }
+      } catch (prefetchErr) {
+        console.error('[OTA] Prefetch error, aborting update apply:', prefetchErr);
+        return;
+      }
+
       await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
       await Preferences.remove({ key: this.PENDING_URL_KEY });
       await Preferences.remove({ key: this.PENDING_VERSION_KEY });
 
-      console.log('[OTA] Update applied, reloading app...');
-      
-      // Capacitor Live Updates ishlatilgan bo'lsa
-      // Bu yerda server.url ni o'zgartirish kerak
-      window.location.href = pendingUrl.value;
-      
-      // Yoki appni to'liq qayta ishga tushirish
-      setTimeout(() => {
-        App.exitApp();
-      }, 500);
+      console.log('[OTA] Update applied, navigating to new content...');
+
+      // Navigate to remote app content. Use replace to avoid extra history entry.
+      try {
+        window.location.replace(targetBase);
+      } catch (navErr) {
+        console.error('[OTA] Navigation error, falling back to href:', navErr);
+        window.location.href = targetBase;
+      }
     } catch (err) {
       console.error('[OTA] reload error', err);
     }
