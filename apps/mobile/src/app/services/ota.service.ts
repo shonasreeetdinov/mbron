@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { App } from '@capacitor/app';
 import { Preferences } from '@capacitor/preferences';
 import { environment } from '../../../../../libs/core/src/lib/config/environment';
 
@@ -202,12 +201,15 @@ export class OtaService {
       return;
     }
 
-    // Native platform
+    // Native platform - Preferences'dan reload qilish
+    // AppDelegate.swift'da applyPendingOTAUpdate() Preferences'dan URL ni o'qib 
+    // WebView'ni qayta yuklaydi
     try {
       const pendingUrl = await Preferences.get({ key: this.PENDING_URL_KEY });
       const pendingVersion = await Preferences.get({ key: this.PENDING_VERSION_KEY });
 
       if (!pendingUrl.value || !pendingVersion.value) {
+        console.log('[OTA] No pending update to apply');
         return;
       }
 
@@ -216,7 +218,10 @@ export class OtaService {
       await Preferences.remove({ key: this.PENDING_VERSION_KEY });
 
       console.log(`[OTA] 🔄 Restarting app with version: ${pendingVersion.value}`);
-      await App.exitApp();
+      
+      // Native app qayta ishga tushadi → AppDelegate → applyPendingOTAUpdate()
+      // → WebView qayta yuklanydi yangi tuzilma bilan
+      window.location.reload();
     } catch (err) {
       console.error('[OTA] Reload error', err);
     }

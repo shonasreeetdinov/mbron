@@ -7,17 +7,14 @@ const config: CapacitorConfig = {
   webDir: 'dist/mobile/browser',
 
   server: {
+    url: 'https://mbron.vercel.app',
     androidScheme: 'https',
     cleartext: true,
-    allowNavigation: ['mbron.vercel.app', 'https://mbron.vercel.app'],
   },
 
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
-    },
-    CapacitorHttp: {
-      enabled: true,
     },
   },
 };
