@@ -47,8 +47,13 @@ export class AppComponent implements OnInit {
       } else {
         console.log('[App] No update available');
       }
+      
+      // 1 minutdan keyin yana tekshirish
+      setTimeout(() => this.checkForNewUpdate(), 60000);
     } catch (err) {
       console.error('[App] Update check failed:', err);
+      // Xatoda ham 1 minutdan keyin qayta urinish
+      setTimeout(() => this.checkForNewUpdate(), 60000);
     }
   }
 

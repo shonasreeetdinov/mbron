@@ -249,7 +249,7 @@ export class OtaService {
       return;
     }
 
-    // Native platform
+    // Native platform - Preferences bilan birga qayta ishga tushiramiz
     try {
       const pendingUrl = await Preferences.get({ key: this.PENDING_URL_KEY });
       const pendingVersion = await Preferences.get({ key: this.PENDING_VERSION_KEY });
@@ -265,6 +265,7 @@ export class OtaService {
       });
 
       // Yangi versiyani joriy versiya qilib saqlaymiz
+      // (Preferences orqali native kodga uzatamiz)
       await this.saveCurrentVersion(pendingVersion.value, pendingUrl.value);
 
       // Pending ma'lumotlarni tozalaymiz
@@ -272,11 +273,9 @@ export class OtaService {
       await Preferences.remove({ key: this.PENDING_VERSION_KEY });
 
       console.log('[OTA] Update applied. Reloading app...');
-      console.log('[OTA] Note: Native code should update server.url to:', pendingUrl.value);
       
-      // Native tomonda server.url ni yangilash kerak
-      // Bu yerda faqat appni qayta ishga tushiramiz
-      // Native code da (iOS/Android) server.url ni o'zgartirish kerak
+      // Native kodda (AppDelegate.swift) Preferences'dan URL ni o'qib, server.url ni yangilaydi
+      // Shuning uchun appni qayta ishga tushiramiz
       await App.exitApp();
     } catch (err) {
       console.error('[OTA] reload error', err);

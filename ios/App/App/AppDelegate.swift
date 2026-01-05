@@ -7,8 +7,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // OTA yangilanishni qo'llash
+        applyPendingOTAUpdate()
+        
         // Override point for customization after application launch.
         return true
+    }
+    
+    // MARK: - OTA Update Management
+    
+    /// Preferences dan pending OTA URLni o'qib, server.url ni yangilash
+    private func applyPendingOTAUpdate() {
+        let defaults = UserDefaults.standard
+        let pendingUrl = defaults.string(forKey: "ota_pending_url")
+        let pendingVersion = defaults.string(forKey: "ota_pending_version")
+        let currentUrl = defaults.string(forKey: "ota_current_url")
+        
+        // Agar pending URL mavjud va u hali qo'llanmagan bo'lsa
+        guard let pendingUrl = pendingUrl,
+              let pendingVersion = pendingVersion,
+              pendingUrl != currentUrl else {
+            return
+        }
+        
+        print("[OTA Native] Applying pending update: version=\(pendingVersion), url=\(pendingUrl)")
+        
+        // server.url ni yangi URL bilan yangilaymiz
+        CAPBridge.sharedInstance().config.server.url = pendingUrl
+        
+        // Hozirgi versiyani saqlaymiz
+        defaults.set(pendingVersion, forKey: "ota_current_version")
+        defaults.set(pendingUrl, forKey: "ota_current_url")
+        
+        // Pending ma'lumotlarni tozalaymiz
+        defaults.removeObject(forKey: "ota_pending_url")
+        defaults.removeObject(forKey: "ota_pending_version")
+        defaults.synchronize()
+        
+        print("[OTA Native] Update applied successfully")
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
