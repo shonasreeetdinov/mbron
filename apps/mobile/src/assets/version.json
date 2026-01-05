@@ -1,7 +1,7 @@
 {
-  "version": "1.0.14",
+  "version": "1.0.9",
   "url": "https://mbron.vercel.app",
   "mandatory": false,
-  "changelog": "Yangi versiya - OTA update tizimi qo'shildi"
+  "changelog": "Device'dagi versiya"
 }
 

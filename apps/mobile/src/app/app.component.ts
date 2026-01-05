@@ -30,8 +30,8 @@ export class AppComponent implements OnInit {
       this.askForReload('Kutayotgan yangilanish mavjud');
     }
 
-    // Yangi update bor-yo'qligini tekshiramiz (background)
-    this.checkForNewUpdate();
+    // Yangi update bor-yo'qligini tekshiramiz (darhol va background'da)
+    await this.checkForNewUpdate();
   }
 
   private async checkForNewUpdate() {
@@ -48,12 +48,12 @@ export class AppComponent implements OnInit {
         console.log('[App] No update available');
       }
       
-      // 1 minutdan keyin yana tekshirish
-      setTimeout(() => this.checkForNewUpdate(), 60000);
+      // 30 sekunddan keyin yana tekshirish
+      setTimeout(() => this.checkForNewUpdate(), 30000);
     } catch (err) {
       console.error('[App] Update check failed:', err);
-      // Xatoda ham 1 minutdan keyin qayta urinish
-      setTimeout(() => this.checkForNewUpdate(), 60000);
+      // Xatoda ham 30 sekunddan keyin qayta urinish
+      setTimeout(() => this.checkForNewUpdate(), 30000);
     }
   }
 
