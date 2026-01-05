@@ -1,7 +1,10 @@
 :host {
   --ion-safe-area-top: var(--ion-statusbar-padding);
 }
-
+ion-app {
+  --ion-safe-area-top: var(--ion-statusbar-padding);
+  --padding-top: var(--ion-safe-area-top + 1rem);
+}
 ion-content {
   --padding-start: 0;
   --padding-end: 0;
